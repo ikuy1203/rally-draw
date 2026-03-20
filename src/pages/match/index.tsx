@@ -35,7 +35,7 @@ export const MatchPage = () => {
         >
           {Array.from({ length: totalMatches }, (_, index) => (
             <Tab
-              key={`round-tab-${index}`}
+              key={`round-tab-${playerCount}-${index}`}
               label={`Round ${index + 1}`}
               value={index}
             />
@@ -61,7 +61,7 @@ export const MatchPage = () => {
 
         <Stack spacing={2}>
           {matchPairs.map((match, index: number) => (
-            <Card key={index} variant="outlined">
+            <Card key={`court-card-${playerCount}-${index}`} variant="outlined">
               <CardContent>
                 <Box sx={{ mb: 2 }}>
                   <Chip
