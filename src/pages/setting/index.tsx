@@ -15,8 +15,13 @@ import { MAX_PLAYERS, MIN_PLAYERS } from '../../consts/players.const';
 import { useMatchSetting } from '../../contexts/MatchSettingContext';
 
 export const SettingPage = () => {
-  const { playerCount, setPlayerCount, courtSelection, setCourtSelection } =
-    useMatchSetting();
+  const {
+    playerCount,
+    setPlayerCount,
+    courtSelection,
+    setCourtSelection,
+    setRound,
+  } = useMatchSetting();
   const [formPlayerCount, setFormPlayerCount] = useState(playerCount);
   const [formCourtSelection, setFormCourtSelection] = useState(courtSelection);
 
@@ -153,6 +158,7 @@ export const SettingPage = () => {
           onClick={() => {
             setPlayerCount(formPlayerCount);
             setCourtSelection(formCourtSelection);
+            setRound(0);
             void navigate('/match');
           }}
         >
