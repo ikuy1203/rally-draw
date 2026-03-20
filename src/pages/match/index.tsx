@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   Box,
   Button,
@@ -16,8 +15,7 @@ import { useMatchSetting } from '../../contexts/MatchSettingContext';
 import { getTotalMatches, useMatchPair } from '../../hooks/useMatchPair';
 
 export const MatchPage = () => {
-  const { playerCount, courtSelection } = useMatchSetting();
-  const [round, setRound] = useState(0);
+  const { playerCount, courtSelection, round, setRound } = useMatchSetting();
   const matchPairs = useMatchPair(round, playerCount, courtSelection.length);
   const totalMatches = getTotalMatches(playerCount);
 

@@ -1,10 +1,12 @@
-import React, { useContext } from 'react';
+import React, { type Dispatch, useContext } from 'react';
 
 interface MatchSettingContextType {
   playerCount: number;
-  setPlayerCount: (count: number) => void;
+  setPlayerCount: Dispatch<React.SetStateAction<number>>;
   courtSelection: string[];
-  setCourtSelection: (courts: string[]) => void;
+  setCourtSelection: Dispatch<React.SetStateAction<string[]>>;
+  round: number;
+  setRound: Dispatch<React.SetStateAction<number>>;
 }
 
 export const MatchSettingContext = React.createContext<
