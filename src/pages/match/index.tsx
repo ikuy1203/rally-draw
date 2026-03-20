@@ -33,11 +33,13 @@ export const MatchPage = () => {
           variant="scrollable"
           scrollButtons="auto"
         >
-          {Array(totalMatches)
-            .fill(true)
-            .map((_, index) => (
-              <Tab key={index} label={`Round ${index + 1}`} value={index} />
-            ))}
+          {Array.from({ length: totalMatches }, (_, index) => (
+            <Tab
+              key={`round-tab-${index}`}
+              label={`Round ${index + 1}`}
+              value={index}
+            />
+          ))}
         </Tabs>
       </Box>
 

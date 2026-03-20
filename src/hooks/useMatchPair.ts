@@ -1,9 +1,11 @@
+import { MIN_PLAYERS } from '../consts/players.const';
+
 export const useMatchPair = (
   match: number,
   players: number,
   _courts: number,
 ) => {
-  const data = matchPairs[players - 4];
+  const data = matchPairs[players - MIN_PLAYERS];
 
   if (!data) return [];
 
@@ -11,7 +13,7 @@ export const useMatchPair = (
 };
 
 export const getTotalMatches = (players: number) => {
-  return matchPairs[players - 4]?.length ?? 0;
+  return matchPairs[players - MIN_PLAYERS]?.length ?? 0;
 };
 
 const matchPairs = [

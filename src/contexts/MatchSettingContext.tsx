@@ -7,9 +7,9 @@ interface MatchSettingContextType {
   setCourtSelection: (courts: string[]) => void;
 }
 
-export const MatchSettingContext = React.createContext<MatchSettingContextType>(
-  {} as MatchSettingContextType,
-);
+export const MatchSettingContext = React.createContext<
+  MatchSettingContextType | undefined
+>(undefined);
 
 export const useMatchSetting = () => {
   const context = useContext(MatchSettingContext);

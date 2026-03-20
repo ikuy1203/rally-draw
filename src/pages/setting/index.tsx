@@ -11,6 +11,7 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
+import { MAX_PLAYERS, MIN_PLAYERS } from '../../consts/players.const';
 import { useMatchSetting } from '../../contexts/MatchSettingContext';
 
 export const SettingPage = () => {
@@ -59,8 +60,8 @@ export const SettingPage = () => {
               <Slider
                 value={formPlayerCount}
                 onChange={(_, value) => setFormPlayerCount(value)}
-                min={4}
-                max={16}
+                min={MIN_PLAYERS}
+                max={MAX_PLAYERS}
                 valueLabelDisplay="auto"
               />
             </Box>
