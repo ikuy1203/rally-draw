@@ -15,6 +15,25 @@ import { MAX_PLAYERS, MIN_PLAYERS } from '@/consts/players.const';
 import { useMatchSetting } from '@/contexts/MatchSettingContext';
 import { useTouchMouseGuard } from '@/hooks/useTouchMouseGuard';
 
+interface CourtConfig {
+  id: string;
+  label: string;
+  enabled: boolean;
+}
+
+const COURTS_CONFIG: CourtConfig[] = [
+  { id: 'C1', label: 'C1', enabled: true },
+  { id: 'C2', label: 'C2', enabled: true },
+  { id: 'C3', label: 'C3', enabled: false },
+  { id: 'C4', label: 'C4', enabled: false },
+  { id: 'C5', label: 'C5', enabled: false },
+  { id: 'C6', label: 'C6', enabled: false },
+];
+
+const ALL_ENABLED_COURTS = COURTS_CONFIG.filter((court) => court.enabled).map(
+  (court) => court.id,
+);
+
 export const SettingPage = () => {
   const {
     playerCount,
@@ -27,8 +46,11 @@ export const SettingPage = () => {
   const [formCourtSelection, setFormCourtSelection] = useState(courtSelection);
 
   const navigate = useNavigate();
-  const courts = ['C1', 'C2', 'C3', 'C4', 'C5', 'C6'];
   const { shouldIgnore } = useTouchMouseGuard();
+
+  const isAllCourtsSelected = ALL_ENABLED_COURTS.every((courtId) =>
+    formCourtSelection.includes(courtId),
+  );
 
   const handlePlayerCountChange = (event: Event, value: number | number[]) => {
     if (Array.isArray(value) || shouldIgnore(event)) return;
@@ -91,27 +113,40 @@ export const SettingPage = () => {
               <Typography variant="overline" sx={{ fontWeight: 700 }}>
                 使用コート選択
               </Typography>
-              <Button
-                size="small"
-                onClick={() => {
-                  setFormCourtSelection(['C1', 'C2']);
-                }}
-              >
-                全選択
-              </Button>
+              {isAllCourtsSelected ? (
+                <Button
+                  size="small"
+                  onClick={() => {
+                    setFormCourtSelection([]);
+                  }}
+                >
+                  全解除
+                </Button>
+              ) : (
+                <Button
+                  size="small"
+                  onClick={() => {
+                    setFormCourtSelection([...ALL_ENABLED_COURTS]);
+                  }}
+                >
+                  全選択
+                </Button>
+              )}
             </Box>
             <Grid container spacing={2}>
-              {courts.map((court) => (
-                <Grid size={4} key={`settings-court-${court}`}>
+              {COURTS_CONFIG.map((court) => (
+                <Grid size={4} key={`settings-court-${court.id}`}>
                   <Button
                     fullWidth
                     variant={
-                      formCourtSelection.includes(court)
+                      formCourtSelection.includes(court.id)
                         ? 'contained'
                         : 'outlined'
                     }
                     color={
-                      formCourtSelection.includes(court) ? 'primary' : 'inherit'
+                      formCourtSelection.includes(court.id)
+                        ? 'primary'
+                        : 'inherit'
                     }
                     sx={{
                       aspectRatio: '1/1',
@@ -121,20 +156,23 @@ export const SettingPage = () => {
                     }}
                     onClick={() =>
                       setFormCourtSelection((prev) =>
-                        prev.includes(court)
-                          ? prev.filter((c) => c !== court)
-                          : [...prev, court],
+                        prev.includes(court.id)
+                          ? prev.filter((c) => c !== court.id)
+                          : [...prev, court.id],
                       )
                     }
-                    disabled={['C3', 'C4', 'C5', 'C6'].includes(court)}
+                    disabled={!court.enabled}
+                    aria-pressed={formCourtSelection.includes(court.id)}
                   >
                     <Typography variant="h6" sx={{ fontWeight: 900 }}>
-                      {court}
+                      {court.label}
                     </Typography>
                     <Typography variant="caption">
-                      {formCourtSelection.includes(court)
-                        ? 'Active'
-                        : 'Disabled'}
+                      {!court.enabled
+                        ? 'Unavailable'
+                        : formCourtSelection.includes(court.id)
+                          ? 'Active'
+                          : 'Disabled'}
                     </Typography>
                   </Button>
                 </Grid>
