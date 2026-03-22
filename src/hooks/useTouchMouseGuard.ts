@@ -8,7 +8,7 @@ export const useTouchMouseGuard = (delay = 400) => {
   const startIgnoreMouseWindow = useCallback(() => {
     ignoreMouseRef.current = true;
 
-    if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
+    if (resetTimerRef.current !== null) clearTimeout(resetTimerRef.current);
 
     resetTimerRef.current = setTimeout(() => {
       ignoreMouseRef.current = false;
@@ -33,7 +33,7 @@ export const useTouchMouseGuard = (delay = 400) => {
 
   useEffect(() => {
     return () => {
-      if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
+      if (resetTimerRef.current !== null) clearTimeout(resetTimerRef.current);
     };
   }, []);
 
