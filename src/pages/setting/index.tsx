@@ -13,6 +13,7 @@ import {
 } from '@mui/material';
 import { MAX_PLAYERS, MIN_PLAYERS } from '@/consts/players.const';
 import { useMatchSetting } from '@/contexts/MatchSettingContext';
+import { useTouchMouseGuard } from '@/hooks/useTouchMouseGuard';
 
 export const SettingPage = () => {
   const {
@@ -26,8 +27,13 @@ export const SettingPage = () => {
   const [formCourtSelection, setFormCourtSelection] = useState(courtSelection);
 
   const navigate = useNavigate();
-
   const courts = ['C1', 'C2', 'C3', 'C4', 'C5', 'C6'];
+  const { shouldIgnore } = useTouchMouseGuard();
+
+  const handlePlayerCountChange = (event: Event, value: number | number[]) => {
+    if (Array.isArray(value) || shouldIgnore(event)) return;
+    setFormPlayerCount(value);
+  };
 
   return (
     <>
@@ -63,8 +69,8 @@ export const SettingPage = () => {
             </Box>
             <Box sx={{ py: 0, px: 1 }}>
               <Slider
-                defaultValue={formPlayerCount}
-                onChange={(_, value) => setFormPlayerCount(value)}
+                value={formPlayerCount}
+                onChange={handlePlayerCountChange}
                 min={MIN_PLAYERS}
                 max={MAX_PLAYERS}
                 valueLabelDisplay="auto"
