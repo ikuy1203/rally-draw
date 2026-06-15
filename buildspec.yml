@@ -1,0 +1,60 @@
+version: 0.2
+
+env:
+  variables:
+    IMAGE_REPO_NAME: rally-draw
+    # Optional override: prod | stg
+    BUILD_MODE: ''
+
+phases:
+  pre_build:
+    commands:
+      - set -eu
+      - echo "Resolving AWS account and branch..."
+      - ACCOUNT_ID=${ACCOUNT_ID:-$(aws sts get-caller-identity --query Account --output text)}
+      - BRANCH_NAME=${CODEBUILD_WEBHOOK_HEAD_REF##refs/heads/}
+      - if [ -z "${BRANCH_NAME}" ] || [ "${BRANCH_NAME}" = "${CODEBUILD_WEBHOOK_HEAD_REF}" ]; then BRANCH_NAME=${CODEBUILD_SOURCE_VERSION}; fi
+      - |
+        if [ -n "${BUILD_MODE}" ]; then
+          case "${BUILD_MODE}" in
+            prod|stg) ;;
+            *)
+              echo "BUILD_MODE must be 'prod' or 'stg'. current=${BUILD_MODE}"
+              exit 1
+              ;;
+          esac
+          RESOLVED_BUILD_MODE=${BUILD_MODE}
+        else
+          case "${BRANCH_NAME}" in
+            main|master)
+              RESOLVED_BUILD_MODE=prod
+              ;;
+            *)
+              RESOLVED_BUILD_MODE=stg
+              ;;
+          esac
+        fi
+      - SHORT_SHA=$(echo "${CODEBUILD_RESOLVED_SOURCE_VERSION}" | cut -c 1-7)
+      - RESOLVED_IMAGE_TAG="${RESOLVED_BUILD_MODE}-${SHORT_SHA}"
+      - ECR_URI="${ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}"
+      - echo "Build mode=${RESOLVED_BUILD_MODE}, branch=${BRANCH_NAME}, tag=${RESOLVED_IMAGE_TAG}"
+      - aws ecr get-login-password --region "${AWS_DEFAULT_REGION}" | docker login --username AWS --password-stdin "${ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
+
+  build:
+    commands:
+      - echo "Building Docker image..."
+      - docker build --build-arg BUILD_MODE="${RESOLVED_BUILD_MODE}" -t "${IMAGE_REPO_NAME}:${RESOLVED_IMAGE_TAG}" .
+      - docker tag "${IMAGE_REPO_NAME}:${RESOLVED_IMAGE_TAG}" "${ECR_URI}:${RESOLVED_IMAGE_TAG}"
+      - docker tag "${IMAGE_REPO_NAME}:${RESOLVED_IMAGE_TAG}" "${ECR_URI}:${RESOLVED_BUILD_MODE}-latest"
+
+  post_build:
+    commands:
+      - echo "Pushing Docker images..."
+      - docker push "${ECR_URI}:${RESOLVED_IMAGE_TAG}"
+      - docker push "${ECR_URI}:${RESOLVED_BUILD_MODE}-latest"
+      - printf '[{"name":"app","imageUri":"%s"}]' "${ECR_URI}:${RESOLVED_IMAGE_TAG}" > imagedefinitions.json
+      - echo "Done"
+
+artifacts:
+  files:
+    - imagedefinitions.json
